@@ -13,8 +13,25 @@ import {
   ALLOWED_MIME_TYPES,
 } from "@/lib/document-storage";
 import { analyzeDocument, isVisionSupported } from "@/lib/document-analyzer";
+import {
+  rateLimit,
+  getClientIdentifier,
+  rateLimitResponse,
+  RATE_LIMITS,
+} from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
+  // Rate limit check
+  const clientId = getClientIdentifier(request);
+  const rateLimitResult = rateLimit(
+    `uploadDocument:${clientId}`,
+    RATE_LIMITS.uploadDocument
+  );
+
+  if (!rateLimitResult.success) {
+    return rateLimitResponse(rateLimitResult.resetIn);
+  }
+
   try {
     const formData = await request.formData();
     const issueId = formData.get("issueId") as string;

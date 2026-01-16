@@ -8,6 +8,12 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import Anthropic from "@anthropic-ai/sdk";
+import {
+  rateLimit,
+  getClientIdentifier,
+  rateLimitResponse,
+  RATE_LIMITS,
+} from "@/lib/rate-limit";
 
 const CHAT_SYSTEM_PROMPT = `You are a helpful healthcare advocacy assistant. You're helping someone who has already received an Issue Resolution Map for their healthcare administrative problem.
 
@@ -30,6 +36,14 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ issueId: string }> }
 ) {
+  // Rate limit check
+  const clientId = getClientIdentifier(request);
+  const rateLimitResult = rateLimit(`chat:${clientId}`, RATE_LIMITS.chat);
+
+  if (!rateLimitResult.success) {
+    return rateLimitResponse(rateLimitResult.resetIn);
+  }
+
   const { issueId } = await params;
 
   try {

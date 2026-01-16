@@ -7,6 +7,12 @@ import {
   type IssueInput,
 } from "@/lib/resolution-generator";
 import { cookies } from "next/headers";
+import {
+  rateLimit,
+  getClientIdentifier,
+  rateLimitResponse,
+  RATE_LIMITS,
+} from "@/lib/rate-limit";
 
 // Get or create session ID from cookie
 async function getSessionId(): Promise<string> {
@@ -21,6 +27,17 @@ async function getSessionId(): Promise<string> {
 }
 
 export async function POST(request: NextRequest) {
+  // Rate limit check
+  const clientId = getClientIdentifier(request);
+  const rateLimitResult = rateLimit(
+    `createIssue:${clientId}`,
+    RATE_LIMITS.createIssue
+  );
+
+  if (!rateLimitResult.success) {
+    return rateLimitResponse(rateLimitResult.resetIn);
+  }
+
   try {
     const body = await request.json();
     const sessionId = await getSessionId();

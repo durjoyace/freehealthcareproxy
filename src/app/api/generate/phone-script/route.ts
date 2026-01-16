@@ -5,8 +5,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { generatePhoneScript } from "@/lib/document-generator";
+import {
+  rateLimit,
+  getClientIdentifier,
+  rateLimitResponse,
+  RATE_LIMITS,
+} from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
+  // Rate limit check
+  const clientId = getClientIdentifier(request);
+  const rateLimitResult = rateLimit(
+    `generateDocument:${clientId}`,
+    RATE_LIMITS.generateDocument
+  );
+
+  if (!rateLimitResult.success) {
+    return rateLimitResponse(rateLimitResult.resetIn);
+  }
+
   try {
     const { issueId, target = "insurance" } = await request.json();
 
