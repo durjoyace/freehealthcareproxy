@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Issue {
+  id            String   @id @default(uuid())
+  sessionId     String
+  issueType     String   // denial, bill, prior_auth, records, claim_pending
+  description   String
+  insurerName   String?
+  providerName  String?
+  amountInvolved Float?
+  dateOfService String?
+  hasDocuments  Boolean  @default(false)
+  documentPaths String?  // JSON array of paths
+
+  resolution    Resolution?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Resolution {
+  id                    String   @id @default(uuid())
+  issueId               String   @unique
+  issue                 Issue    @relation(fields: [issueId], references: [id])
+
+  // The Resolution Map fields
+  whatIsHappening       String   // Plain English explanation
+  whoIsResponsible      String   // JSON: { parties: [...], primaryContact: string }
+  likelihoodOfSuccess   String   // high, medium, low
+  likelihoodReason      String
+  nextSteps             String   // JSON array of steps
+  documentsNeeded       String   // JSON array of document names
+  estimatedTimeframe    String   // e.g., "2-4 weeks"
+  warnings              String?  // JSON array of things to watch out for
+
+  createdAt             DateTime @default(now())
+}
+
+model LeadCapture {
+  id            String   @id @default(uuid())
+  issueId       String
+  email         String
+  phone         String?
+  preferredContact String @default("email")
+  notes         String?
+
+  createdAt     DateTime @default(now())
+}

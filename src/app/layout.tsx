@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { Disclaimer } from "@/components/Disclaimer";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -8,15 +9,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "FreeHealthcareProxy - Navigate Healthcare Admin Problems With Ease",
-  description: "Get free help understanding healthcare administrative issues - medical bills, insurance denials, records requests, and prior authorizations. Expert guidance when you need it most.",
-  keywords: "healthcare proxy, medical bills help, insurance denial appeal, prior authorization, medical records, healthcare advocacy",
-  openGraph: {
-    title: "FreeHealthcareProxy - Navigate Healthcare Admin Problems With Ease",
-    description: "Get free help understanding healthcare administrative issues. Expert guidance for medical bills, insurance denials, and more.",
-    type: "website",
-    url: "https://freehealthcareproxy.com",
-  },
+  title: "FreeHealthcareProxy - Free Healthcare Admin Help",
+  description: "Get free clarity on healthcare admin problems—bills, denials, prior authorizations, and more. Understand what's happening before deciding your next step.",
+  keywords: "healthcare admin, medical bill help, insurance denial, prior authorization, claim pending, healthcare proxy",
 };
 
 export default function RootLayout({
@@ -25,9 +20,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="scroll-smooth">
-      <body className={`${inter.variable} font-sans antialiased`}>
+    <html lang="en">
+      <body className={`${inter.variable} font-sans antialiased pb-10`}>
         {children}
+        <Disclaimer />
       </body>
     </html>
   );
