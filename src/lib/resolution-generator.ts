@@ -456,5 +456,27 @@ export class RuleBasedResolutionGenerator implements ResolutionGenerator {
   }
 }
 
-// Export a singleton instance for easy use
-export const resolutionGenerator = new RuleBasedResolutionGenerator();
+// Import Claude generator
+import { ClaudeResolutionGenerator } from "./claude-resolution-generator";
+
+/**
+ * Factory function to create the appropriate resolution generator
+ * Uses Claude if API key is available, otherwise falls back to rule-based
+ */
+export function createResolutionGenerator(): ResolutionGenerator {
+  const hasApiKey = !!process.env.ANTHROPIC_API_KEY;
+
+  if (hasApiKey) {
+    console.log("Using Claude-powered resolution generator");
+    return new ClaudeResolutionGenerator();
+  }
+
+  console.log("Using rule-based resolution generator (no API key)");
+  return new RuleBasedResolutionGenerator();
+}
+
+// Export singleton instance - uses Claude if available
+export const resolutionGenerator = createResolutionGenerator();
+
+// Also export the rule-based generator for testing/fallback
+export const ruleBasedGenerator = new RuleBasedResolutionGenerator();

@@ -17,9 +17,11 @@ model Issue {
   amountInvolved Float?
   dateOfService String?
   hasDocuments  Boolean  @default(false)
-  documentPaths String?  // JSON array of paths
+  documentPaths String?  // JSON array of paths (legacy)
 
   resolution    Resolution?
+  documents     Document[]
+  conversation  Conversation?
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -41,6 +43,48 @@ model Resolution {
   warnings              String?  // JSON array of things to watch out for
 
   createdAt             DateTime @default(now())
+}
+
+model Document {
+  id            String   @id @default(uuid())
+  issueId       String
+  issue         Issue    @relation(fields: [issueId], references: [id])
+
+  filename      String   // Stored filename (UUID-based)
+  originalName  String   // Original filename from user
+  mimeType      String   // e.g., "application/pdf", "image/jpeg"
+  size          Int      // File size in bytes
+  storagePath   String   // Full path to stored file
+
+  // Claude analysis results
+  documentType  String?  // "eob", "denial_letter", "bill", "insurance_card", "other"
+  extractedText String?  // Raw text extraction (if applicable)
+  analysis      String?  // JSON: Claude's structured analysis
+
+  createdAt     DateTime @default(now())
+}
+
+model Conversation {
+  id        String    @id @default(uuid())
+  issueId   String    @unique
+  issue     Issue     @relation(fields: [issueId], references: [id])
+
+  messages  Message[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+
+  role           String       // "user" | "assistant"
+  content        String       // Message text
+  metadata       String?      // JSON: additional data (tool calls, etc.)
+
+  createdAt      DateTime     @default(now())
 }
 
 model LeadCapture {

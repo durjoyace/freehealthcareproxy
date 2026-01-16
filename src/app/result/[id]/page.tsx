@@ -21,7 +21,11 @@ import {
   Sparkles,
   Target,
   Calendar,
+  MessageSquare,
+  FileEdit,
+  PhoneCall,
 } from "lucide-react";
+import { AIToolsSection } from "./AIToolsSection";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -290,6 +294,9 @@ export default async function ResultPage({ params }: PageProps) {
               </div>
             </section>
           )}
+
+          {/* AI Tools Section */}
+          <AIToolsSection issueId={id} issueType={issue.issueType} />
 
           {/* Bottom CTA */}
           <section className="relative overflow-hidden rounded-2xl gradient-cta p-8 text-center">
